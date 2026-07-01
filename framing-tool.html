@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Same Story, Six Ways</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --shell: #0F1A1D;
+    --shell-2: #16262A;
+    --paper: #F3EEDF;
+    --paper-edge: #E4DCC4;
+    --ink: #1B1B18;
+    --ink-soft: #55534A;
+    --ins: #B5651D;
+    --del: #A5382B;
+    --annot: #2F7A72;
+    --rule: #D8CFB2;
+    --c-advocacy: #2F7A72;
+    --c-wire: #45608C;
+    --c-broadsheet: #3B6B3E;
+    --c-state: #8C2F3A;
+    --c-tabloid: #C97418;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top, #1B2F34 0%, var(--shell) 55%),
+      var(--shell);
+    font-family:'Inter',sans-serif;
+    color:var(--paper);
+    min-height:100vh;
+    padding:32px 16px 56px;
+  }
+
+  .wrap{max-width:760px;margin:0 auto;}
+
+  header.top{
+    text-align:center;
+    margin-bottom:28px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:#8FA6A2;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Source Serif 4',serif;
+    font-weight:700;
+    font-size:clamp(24px,4vw,34px);
+    margin:0 0 8px;
+    color:#F3EEDF;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    font-size:14px;
+    color:#9FB3AF;
+    max-width:520px;
+    margin:0 auto;
+    line-height:1.5;
+  }
+
+  /* Outlet dial */
+  .dial{
+    margin:30px 0 26px;
+    background:var(--shell-2);
+    border:1px solid #223338;
+    border-radius:14px;
+    padding:18px 18px 14px;
+  }
+  .dial-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:#7C918D;
+    margin-bottom:12px;
+  }
+  .stops{
+    display:flex;
+    justify-content:space-between;
+    position:relative;
+    padding:0 4px;
+  }
+  .stops::before{
+    content:'';
+    position:absolute;
+    top:9px; left:14px; right:14px;
+    height:2px;
+    background:#2A3B40;
+    z-index:0;
+  }
+  .stop{
+    position:relative;
+    z-index:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    background:none;
+    border:none;
+    color:inherit;
+    font-family:'Inter',sans-serif;
+    padding:0;
+    flex:1;
+  }
+  .dot{
+    width:20px;height:20px;border-radius:50%;
+    background:#2A3B40;
+    border:3px solid var(--shell-2);
+    outline:2px solid #2A3B40;
+    transition:all .25s ease;
+  }
+  .stop.active .dot{
+    outline-color: var(--dotcolor, #fff);
+    background: var(--dotcolor, #fff);
+    transform:scale(1.15);
+  }
+  .stop-name{
+    font-size:11px;
+    text-align:center;
+    color:#7C918D;
+    line-height:1.3;
+    max-width:80px;
+    transition:color .2s ease;
+  }
+  .stop.active .stop-name{ color:#F3EEDF; font-weight:600; }
+
+  @media (max-width:640px){
+    .stops{ flex-wrap:nowrap; overflow-x:auto; justify-content:flex-start; gap:20px; padding:0 4px 6px; }
+    .stops::before{ left:10px; right:10px; }
+    .stop{ flex:0 0 auto; min-width:66px; }
+  }
+
+  input[type=range]{
+    display:none;
+  }
+
+  /* The document */
+  .sheet-outer{
+    display:grid;
+    grid-template-columns: 1fr 200px;
+    gap:18px;
+    align-items:start;
+  }
+  @media (max-width:640px){
+    .sheet-outer{ grid-template-columns: 1fr; }
+  }
+
+  .sheet{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:3px;
+    padding:34px 34px 30px;
+    position:relative;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.55), 0 2px 0 var(--paper-edge);
+    background-image:
+      repeating-linear-gradient(to right, transparent 0 9px, rgba(0,0,0,.025) 9px 10px);
+  }
+  .sheet::before{
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0;
+    height:8px;
+    background-image: radial-gradient(circle, var(--shell) 2.3px, transparent 2.6px);
+    background-size: 16px 16px;
+    background-position: 0 -8px;
+  }
+
+  .masthead{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:10px;
+    margin-bottom:6px;
+  }
+  .outlet-name{
+    font-family:'Source Serif 4',serif;
+    font-weight:700;
+    font-size:20px;
+    transition:color .25s ease;
+  }
+  .outlet-tagline{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+  .type-row{
+    display:flex;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:9px;
+  }
+  .type-badge{
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:10px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+    transition:all .25s ease;
+  }
+  .type-desc{
+    font-family:'Inter',sans-serif;
+    font-style:italic;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    line-height:1.4;
+  }
+  .dateline{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    letter-spacing:.05em;
+    margin:8px 0 18px;
+  }
+
+  h2.headline{
+    font-family:'Source Serif 4',serif;
+    font-size:clamp(21px,2.6vw,26px);
+    line-height:1.28;
+    font-weight:700;
+    margin:0 0 16px;
+  }
+
+  .byline{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    margin-bottom:16px;
+  }
+
+  p.body-text{
+    font-family:'Source Serif 4',serif;
+    font-size:16px;
+    line-height:1.65;
+    margin:0 0 14px;
+  }
+
+  blockquote{
+    margin:18px 0 6px;
+    padding:12px 0 12px 16px;
+    border-left:3px solid var(--ink);
+    font-family:'Source Serif 4',serif;
+    font-style:italic;
+    font-size:15px;
+    line-height:1.55;
+    color:var(--ink);
+    min-height:60px;
+  }
+  .quote-attr{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-style:normal;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+
+  .slot{ position:relative; white-space:normal; }
+  .del-tok{
+    color:var(--del);
+    text-decoration:line-through;
+    text-decoration-thickness:1.5px;
+    opacity:0;
+    font-weight:600;
+  }
+  .ins-tok{
+    color:var(--ins);
+    font-weight:700;
+  }
+  .settled{ color:inherit; font-weight:inherit; }
+
+  /* Margin annotations */
+  .margin{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    padding-top:6px;
+  }
+  .margin-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:#7C918D;
+    margin-bottom:2px;
+  }
+  .tag{
+    background:var(--shell-2);
+    border:1px solid #223338;
+    border-left:3px solid var(--annot);
+    border-radius:6px;
+    padding:10px 12px;
+    animation:fadeIn .4s ease both;
+  }
+  .tag-title{
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:12px;
+    color:#F3EEDF;
+    margin-bottom:4px;
+  }
+  .tag-body{
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    line-height:1.45;
+    color:#A9BDB9;
+  }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+  footer.note{
+    margin-top:22px;
+    font-size:11.5px;
+    color:#6E827E;
+    text-align:center;
+    line-height:1.5;
+  }
+  footer.note strong{ color:#9FB3AF; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">Media Literacy Widget</div>
+    <h1>The Same Story, Six Ways</h1>
+    <p class="sub">Every outlet below is reporting the exact same event. Move the dial and watch the story rewrite itself — the words that change are the words doing the work.</p>
+  </header>
+
+  <div class="dial">
+    <div class="dial-label">Select an outlet</div>
+    <div class="stops" id="stops"></div>
+  </div>
+
+  <div class="sheet-outer">
+    <div class="sheet">
+      <div class="masthead">
+        <div>
+          <div class="outlet-name" id="outletName">—</div>
+          <div class="outlet-tagline" id="outletTag">—</div>
+          <div class="type-row">
+            <span class="type-badge" id="typeBadge">—</span>
+            <span class="type-desc" id="typeDesc">—</span>
+          </div>
+        </div>
+      </div>
+      <div class="dateline">KESTREL BAY, MERIDIA · TUESDAY · WIRE FILE 4471</div>
+
+      <h2 class="headline" id="headline"></h2>
+      <div class="byline">STAFF REPORT</div>
+
+      <p class="body-text" id="para1"></p>
+      <p class="body-text" id="para2"></p>
+
+      <blockquote>
+        <span id="quote"></span>
+        <span class="quote-attr" id="quoteAttr"></span>
+      </blockquote>
+    </div>
+
+    <div class="margin">
+      <div class="margin-label">Framing techniques used</div>
+      <div id="tags"></div>
+    </div>
+  </div>
+
+  <footer class="note">
+    <strong>Kestrel Bay and Meridia are fictional</strong> — this widget is about the technique of framing, not any real place or event. Try rewriting a story from your own unit using the same five moves: word choice, who's quoted, whose numbers you use, what gets left out, and what verb does the action.
+  </footer>
+</div>
+
+<script>
+const OUTLETS = [
+  {
+    key:'advocacy', name:'Borderline Stories', tag:'Independent human-rights reporting', color:'var(--c-advocacy)',
+    type:'Advocacy / nonprofit outlet', typeDesc:'Publishes to raise awareness of an issue, often funded by a charity or NGO.',
+    count:'Dozens of', people:'asylum seekers', arrive:'reach safety',
+    origin:'a country gripped by years of conflict', arrived2:'were rescued', source:'aid workers on the scene',
+    stat:'a growing humanitarian emergency that demands urgent shelter and medical care',
+    advSource:'A volunteer coordinator', vulnerable:'several young children and at least one pregnant woman',
+    quote:'“These people walked for weeks to get here. The least we can do is make sure no child sleeps outside tonight.”',
+    quoteAttr:'— Aid volunteer, Kestrel Bay relief tent',
+    tags:[
+      {t:'Personalizing language', b:'"Asylum seekers" and "rescued" frame the group as individuals with a legal claim and a need, not a mass or a threat.'},
+      {t:'Vulnerability framing', b:'Leading with children and a pregnant woman invites sympathy before any policy question is raised.'},
+      {t:'Source selection', b:'The only voice quoted is a volunteer — officials and the migrants themselves are absent.'}
+    ]
+  },
+  {
+    key:'wire', name:'Continental Newswire', tag:'Wire service · fact-first reporting', color:'var(--c-wire)',
+    type:'Wire service', typeDesc:'Supplies neutral, fact-checked reports that other news outlets often republish or build on.',
+    count:'Dozens of', people:'migrants', arrive:'arrive',
+    origin:'Solvane', arrived2:'arrived', source:'coast guard officials',
+    stat:'a modest increase over last month\u2019s figures',
+    advSource:'A spokesperson', vulnerable:'adults and several minors',
+    quote:'“We processed the group according to standard procedure. No injuries were reported.”',
+    quoteAttr:'— Coast guard spokesperson',
+    tags:[
+      {t:'Neutral terminology', b:'"Migrants" and "arrived" are the least loaded terms available — no verdict is implied.'},
+      {t:'Attributed claims', b:'Every fact is tied to a named type of source ("officials said"), not stated as bare fact.'},
+      {t:'Single official source', b:'Balanced in tone, but only one perspective — the authorities\u2019 — is actually quoted.'}
+    ]
+  },
+  {
+    key:'broadsheet', name:'The Meridian Standard', tag:'National paper of record', color:'var(--c-broadsheet)',
+    type:'Establishment newspaper', typeDesc:'Formal, in-depth reporting aimed at policymakers and general readers — a "paper of record."',
+    count:'A group of', people:'migrants', arrive:'land',
+    origin:'neighboring Solvane', arrived2:'came ashore', source:'the Ministry of Interior',
+    stat:'the latest in a series of arrivals this year',
+    advSource:'A ministry official', vulnerable:'a mix of men, women, and children',
+    quote:'“The situation is being managed within existing protocols, and an interagency review is standard practice.”',
+    quoteAttr:'— Ministry of Interior official',
+    tags:[
+      {t:'Institutional framing', b:'The Ministry, not witnesses or the migrants, defines what happened — officialdom sets the narrative.'},
+      {t:'Passive voice', b:'"Came ashore" and "is being managed" obscure who is doing what to whom.'},
+      {t:'Procedural tone', b:'Words like "protocols" and "interagency review" make a human event read like paperwork.'}
+    ]
+  },
+  {
+    key:'state', name:'Meridia National Herald', tag:'State broadcasting service', color:'var(--c-state)',
+    type:'State-run media', typeDesc:'Owned or funded by the government; reporting tends to reflect the official position.',
+    count:'Another group of', people:'foreign nationals', arrive:'attempt illegal entry',
+    origin:'Solvane, a country not recognized as a conflict zone by Meridia\u2019s foreign ministry', arrived2:'were intercepted', source:'border security forces',
+    stat:'a continuing strain on national resources and border security',
+    advSource:'A senior immigration officer', vulnerable:'several individuals without documentation',
+    quote:'“Our forces acted swiftly to secure the border and uphold the law. Sovereignty is not negotiable.”',
+    quoteAttr:'— Border security chief',
+    tags:[
+      {t:'Securitized language', b:'"Intercepted" and "illegal entry" cast arrival itself as a security event rather than a humanitarian one.'},
+      {t:'Legitimacy question', b:'Disputing that Solvane is a conflict zone quietly undercuts any asylum claim before it\u2019s made.'},
+      {t:'Authority-only sourcing', b:'Every voice in the story belongs to the state — no independent or opposing account appears.'}
+    ]
+  },
+  {
+    key:'tabloid', name:'The Daily Alarm', tag:'Breaking news, no filler', color:'var(--c-tabloid)',
+    type:'Sensationalist tabloid', typeDesc:'Short, dramatic headlines built to grab attention and provoke a strong reaction fast.',
+    count:'Wave of', people:'illegal migrants', arrive:'flood in',
+    origin:'war-torn Solvane', arrived2:'washed up', source:'a local resident who filmed the scene',
+    stat:'the crisis engulfing our borders',
+    advSource:'One furious local', vulnerable:'dozens of unidentified young men',
+    quote:'“Nobody asked us. One day it\u2019s a trickle, next it\u2019s a flood — where does it end?”',
+    quoteAttr:'— Local resident, speaking to The Daily Alarm',
+    tags:[
+      {t:'Loaded / dehumanizing language', b:'"Flood," "wave," and "illegal migrants" borrow the vocabulary of disaster and crime for people.'},
+      {t:'Emotional intensifiers', b:'"Crisis" and "furious" push the reader toward alarm before any fact is verified.'},
+      {t:'Unverified eyewitness source', b:'A single bystander with a phone becomes the story\u2019s main voice — no official or expert is consulted.'}
+    ]
+  },
+  {
+    key:'social', name:'@KestrelWatch387', tag:'Personal account · 40K followers', color:'#6B5CA5',
+    type:'Citizen social media post', typeDesc:'One person\u2019s own post, shared with no editor, fact-checker, or professional standard behind it.',
+    count:'Another BOATLOAD of', people:'migrants', arrive:'just showed up',
+    origin:'that place Solvane (wherever that is)', arrived2:'showed up', source:'someone who lives near the docks (me)',
+    stat:'this is getting out of hand tbh',
+    advSource:'Another commenter', vulnerable:'no idea who any of these people even are',
+    quote:'“No one\u2019s talking about this enough. Sharing so more people see it.”',
+    quoteAttr:'— Reply from @portside_watcher',
+    tags:[
+      {t:'No editorial process', b:'There\u2019s no editor, fact-checker, or source review — a personal impression is posted straight as news.'},
+      {t:'Caps and punctuation as urgency', b:'"BOATLOAD" and casual alarm ("getting out of hand") mimic breaking-news urgency without any verification behind it.'},
+      {t:'Rewarded for spreading, not accuracy', b:'"Sharing so more people see it" shows the incentive is reach and reaction, not getting the facts right.'}
+    ]
+  }
+];
+
+let current = -1;
+
+function buildStops(){
+  const el = document.getElementById('stops');
+  OUTLETS.forEach((o,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'stop';
+    btn.style.setProperty('--dotcolor', o.color);
+    btn.innerHTML = `<span class="dot"></span><span class="stop-name">${o.name}</span>`;
+    btn.addEventListener('click', ()=> setOutlet(i));
+    el.appendChild(btn);
+  });
+}
+
+function slotSpan(id, text){
+  return `<span class="slot" id="${id}"><span class="settled">${text}</span></span>`;
+}
+
+function render(o, animate){
+  document.getElementById('outletName').textContent = o.name;
+  document.getElementById('outletName').style.color = o.color;
+  document.getElementById('outletTag').textContent = o.tag;
+
+  const badge = document.getElementById('typeBadge');
+  badge.textContent = o.type;
+  badge.style.color = o.color;
+  badge.style.background = 'color-mix(in srgb, ' + o.color + ' 14%, transparent)';
+  badge.style.border = '1px solid ' + o.color;
+  document.getElementById('typeDesc').textContent = o.typeDesc;
+
+  const headline = `${o.count} ${o.people} ${o.arrive} on Meridia's coast`;
+  const p1 = `${o.people.charAt(0).toUpperCase()+o.people.slice(1)}, most from ${o.origin}, ${o.arrived2} near Kestrel Bay early Tuesday, according to ${o.source}.`;
+  const p2 = `Officials said the arrival reflects ${o.stat}. ${o.advSource} said the group includes ${o.vulnerable}.`;
+
+  if(!animate){
+    document.getElementById('headline').textContent = headline;
+    document.getElementById('para1').textContent = p1;
+    document.getElementById('para2').textContent = p2;
+  } else {
+    crossfade('headline', headline);
+    crossfade('para1', p1);
+    crossfade('para2', p2);
+  }
+
+  const q = document.getElementById('quote');
+  const qa = document.getElementById('quoteAttr');
+  q.style.opacity = 0;
+  qa.style.opacity = 0;
+  setTimeout(()=>{
+    q.textContent = o.quote;
+    qa.textContent = o.quoteAttr;
+    q.style.transition = 'opacity .35s ease';
+    qa.style.transition = 'opacity .35s ease';
+    q.style.opacity = 1;
+    qa.style.opacity = 1;
+  }, animate ? 180 : 0);
+
+  const tagsEl = document.getElementById('tags');
+  tagsEl.innerHTML = '';
+  o.tags.forEach((tg, idx)=>{
+    const d = document.createElement('div');
+    d.className = 'tag';
+    d.style.borderLeftColor = o.color;
+    d.style.animationDelay = (idx*90)+'ms';
+    d.innerHTML = `<div class="tag-title">${tg.t}</div><div class="tag-body">${tg.b}</div>`;
+    tagsEl.appendChild(d);
+  });
+
+  document.querySelectorAll('.stop').forEach((s,i)=> s.classList.toggle('active', i===OUTLETS.indexOf(o)));
+}
+
+// simple crossfade word-swap: fades old text out, new text in, tinted like an edit
+function crossfade(elId, newText){
+  const el = document.getElementById(elId);
+  const old = el.textContent;
+  if(old === newText) return;
+  el.style.transition = 'opacity .15s ease';
+  el.style.opacity = 0;
+  setTimeout(()=>{
+    el.textContent = newText;
+    el.style.color = 'var(--ins)';
+    el.style.opacity = 1;
+    setTimeout(()=>{ el.style.transition='color .6s ease'; el.style.color = 'var(--ink)'; }, 60);
+  }, 150);
+}
+
+function setOutlet(i){
+  if(i === current) return;
+  const animate = current !== -1;
+  current = i;
+  render(OUTLETS[i], animate);
+}
+
+buildStops();
+setOutlet(1); // start on the neutral wire service
+</script>
+</body>
+</html>
